@@ -19,6 +19,7 @@ import {
 import { Cabecalho, type PropsCabecalho } from "@/components/blocos/Cabecalho";
 import { Carrossel, type PropsCarrossel } from "@/components/blocos/Carrossel";
 import { Album, type PropsAlbum } from "@/components/blocos/Album";
+import { GaleriaMovimento, type PropsGaleriaMovimento } from "@/components/blocos/GaleriaMovimento";
 import { campoGaleria, campoImagem } from "@/components/editor/campos";
 
 /* ------------------------------------------------- opções reutilizáveis */
@@ -116,6 +117,13 @@ type Props = {
     link: string;
   };
   Carrossel: SecaoProps & PropsCarrossel & { titulo: string; largura: Largura };
+  GaleriaMovimento: PropsGaleriaMovimento & {
+    rotulo: string;
+    titulo: string;
+    texto: string;
+    fundo: Fundo;
+    ancora: string;
+  };
   Album: SecaoProps &
     PropsAlbum & {
       rotulo: string;
@@ -251,7 +259,7 @@ function urlVideo(url: string) {
 
 export const config: Config<Props, Root> = {
   categories: {
-    fotos: { title: "Fotos", components: ["Foto", "Carrossel", "Album", "Portfolio", "Video"] },
+    fotos: { title: "Fotos", components: ["Foto", "Carrossel", "GaleriaMovimento", "Album", "Portfolio", "Video"] },
     textos: { title: "Textos", components: ["Destaque", "Texto", "ImagemTexto", "Citacao", "Contato"] },
     estrutura: { title: "Estrutura da página", components: ["Cabecalho", "Rodape", "Colunas", "Espaco"] },
   },
@@ -481,6 +489,75 @@ export const config: Config<Props, Root> = {
           )}
           <Carrossel {...p} editando={puck.isEditing} />
         </Secao>
+      ),
+    },
+
+    /* -------------------------------------------------- Galeria em movimento */
+    GaleriaMovimento: {
+      label: "Galeria em movimento (corre ao rolar a página)",
+      fields: {
+        fotos: campoGaleria("Fotos"),
+        rotulo: { type: "text", label: "Rótulo pequeno (opcional)", contentEditable: true },
+        titulo: { type: "textarea", label: "Título no início da faixa (opcional)", contentEditable: true },
+        texto: { type: "textarea", label: "Texto curto (opcional)" },
+        alturaFotos: { type: "number", label: "Altura das fotos (% da tela)", min: 30, max: 90 },
+        espaco: { type: "number", label: "Espaço entre fotos (px)", min: 0, max: 120 },
+        velocidade: {
+          type: "radio",
+          label: "Velocidade",
+          options: [
+            { label: "Rápida", value: "rapida" },
+            { label: "Normal", value: "normal" },
+            { label: "Lenta", value: "lenta" },
+          ],
+        },
+        direcao: {
+          type: "radio",
+          label: "As fotos correm para",
+          options: [
+            { label: "Esquerda", value: "esquerda" },
+            { label: "Direita", value: "direita" },
+          ],
+        },
+        parallax: { type: "radio", label: "Efeito de profundidade nas fotos (parallax)", options: opSimNao },
+        mostrarLegendas: { type: "radio", label: "Mostrar legendas", options: opSimNao },
+        fundo: { type: "select", label: "Cor de fundo", options: opFundo },
+        ancora: { type: "text", label: "Âncora (opcional — permite links como #esporte)" },
+      },
+      defaultProps: {
+        fotos: [],
+        rotulo: "em movimento",
+        titulo: "Instantes que acontecem.",
+        texto: "",
+        alturaFotos: 70,
+        espaco: 24,
+        velocidade: "normal",
+        direcao: "esquerda",
+        parallax: true,
+        mostrarLegendas: false,
+        fundo: "preto",
+        ancora: "",
+      },
+      render: ({ rotulo, titulo, texto, fundo, ancora, puck, id: _id, ...p }) => (
+        <div id={ancora || undefined} className={`pb-fundo-${fundo}`}>
+          <GaleriaMovimento
+            {...p}
+            editando={puck.isEditing}
+            intro={
+              rotulo || titulo || texto ? (
+                <>
+                  {rotulo && <p className="pb-rotulo">{rotulo}</p>}
+                  {titulo && <h2 className="pb-titulo">{titulo}</h2>}
+                  {texto && (
+                    <div className="pb-texto" style={{ marginTop: 16 }}>
+                      <Paragrafos texto={texto} />
+                    </div>
+                  )}
+                </>
+              ) : undefined
+            }
+          />
+        </div>
       ),
     },
 

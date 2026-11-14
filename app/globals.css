@@ -914,6 +914,73 @@ a {
   border: 0;
 }
 
+
+/* ------------------------------------------------- galeria em movimento */
+
+.pb-movimento {
+  position: relative;
+}
+.pb-movimento__palco {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.pb-movimento__trilho {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco, 24px);
+  padding: 0 var(--pb-gutter);
+  width: max-content;
+  will-change: transform;
+}
+.pb-movimento__intro {
+  flex: none;
+  width: min(420px, 78vw);
+  padding-right: clamp(16px, 4vw, 48px);
+}
+.pb-movimento__item {
+  flex: none;
+  margin: 0;
+}
+.pb-movimento__quadro {
+  /* altura escolhida, sem passar de 85% da largura da tela nem da altura disponível */
+  height: min(var(--altura-fotos, 70vh), calc(85vw / var(--ratio, 1.5)), calc(100svh - 120px));
+  overflow: hidden;
+  background: var(--pb-petroleo-claro);
+}
+.pb-movimento__quadro > img,
+.pb-movimento__quadro > .pb-vazio {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.18);
+  will-change: transform;
+}
+.pb-movimento__quadro > .pb-vazio {
+  transform: none;
+  min-width: 260px;
+}
+/* prévia no editor / quem prefere menos movimento: faixa com rolagem lateral */
+.pb-movimento--estatico .pb-movimento__palco {
+  position: relative;
+  height: auto;
+  padding: clamp(40px, 6vw, 80px) 0;
+  overflow-x: auto;
+}
+.pb-movimento--estatico .pb-movimento__quadro > img {
+  transform: none;
+}
+.pb-movimento__aviso {
+  margin: 18px var(--pb-gutter) 0;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
 /* ------------------------------------------------------------ lightbox */
 
 .pb-lightbox {
