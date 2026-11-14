@@ -6,7 +6,7 @@ import { Foto, cx, type ItemGaleria } from "./comum";
 export type PropsGaleriaMovimento = {
   fotos: ItemGaleria[];
   alturaFotos: number; // % da altura da tela
-  espaco: number; // px entre fotos
+  espaco?: number; // não usado: as fotos ficam sempre coladas
   velocidade: "rapida" | "normal" | "lenta";
   direcao: "esquerda" | "direita";
   parallax: boolean;
@@ -23,7 +23,6 @@ const INTENSIDADE_PARALLAX = 0.12; // deslocamento da foto dentro da moldura
 export function GaleriaMovimento({
   fotos,
   alturaFotos,
-  espaco,
   velocidade,
   direcao,
   parallax,
@@ -105,7 +104,6 @@ export function GaleriaMovimento({
 
   const estilo = {
     "--altura-fotos": `${alturaFotos || 70}vh`,
-    "--espaco": `${espaco ?? 24}px`,
     height: alturaSecao ? `${alturaSecao}px` : undefined,
   } as CSSProperties;
 

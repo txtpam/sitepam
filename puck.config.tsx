@@ -502,7 +502,6 @@ export const config: Config<Props, Root> = {
         titulo: { type: "textarea", label: "Título no início da faixa (opcional)", contentEditable: true },
         texto: { type: "textarea", label: "Texto curto (opcional)" },
         alturaFotos: { type: "number", label: "Altura das fotos (% da tela)", min: 30, max: 90 },
-        espaco: { type: "number", label: "Espaço entre fotos (px)", min: 0, max: 120 },
         velocidade: {
           type: "radio",
           label: "Velocidade",
@@ -531,7 +530,6 @@ export const config: Config<Props, Root> = {
         titulo: "Instantes que acontecem.",
         texto: "",
         alturaFotos: 70,
-        espaco: 24,
         velocidade: "normal",
         direcao: "esquerda",
         parallax: true,

@@ -547,7 +547,6 @@ a {
 }
 .pb-carrossel--varias .pb-carrossel__slide {
   flex: 0 0 82%;
-  padding-right: 8px;
 }
 @media (min-width: 900px) {
   .pb-carrossel--varias .pb-carrossel__slide {
@@ -933,7 +932,7 @@ a {
 .pb-movimento__trilho {
   display: flex;
   align-items: center;
-  gap: var(--espaco, 24px);
+  gap: 0; /* fotos sempre coladas */
   padding: 0 var(--pb-gutter);
   width: max-content;
   will-change: transform;
