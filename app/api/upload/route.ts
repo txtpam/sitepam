@@ -9,7 +9,8 @@ import {
 import { estaLogado } from "@/lib/auth";
 import { modoUpload, salvarArquivoLocal } from "@/lib/storage";
 
-const TIPOS = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml", "image/avif"];
+// SVG fica de fora: pode conter código e fotografias não usam esse formato.
+const TIPOS = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
 const MAXIMO = 40 * 1024 * 1024;
 
 function destinoValido(pathname: string) {

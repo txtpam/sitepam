@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cx, linkExterno } from "./comum";
+import { cx, linkExterno, linkSeguro } from "./comum";
 
 export type PropsCabecalho = {
   estilo: "claro" | "branco" | "preto" | "petroleo" | "transparente";
@@ -45,7 +45,7 @@ export function Cabecalho({ estilo, fixo, links, editando }: PropsCabecalho & { 
           <ul id="pb-menu" className={cx("pb-cabecalho__menu", aberto && "pb-cabecalho__menu--aberto")}>
             {(links || []).map((l, i) => (
               <li key={i}>
-                <a href={l.link || "#"} onClick={() => setAberto(false)} {...linkExterno(l.link)}>
+                <a href={linkSeguro(l.link) || "#"} onClick={() => setAberto(false)} {...linkExterno(l.link)}>
                   {l.rotulo}
                 </a>
               </li>

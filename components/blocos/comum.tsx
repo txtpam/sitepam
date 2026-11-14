@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
+import { linkSeguro } from "@/lib/seguranca";
 
 export type Imagem = {
   src: string;
@@ -105,7 +106,7 @@ export function Botoes({ botoes, editando }: { botoes?: Botao[]; editando?: bool
       {validos.map((b, i) => (
         <a
           key={i}
-          href={b.link || "#"}
+          href={linkSeguro(b.link) || "#"}
           className={`pb-botao pb-botao--${b.estilo || "destaque"}`}
           tabIndex={editando ? -1 : undefined}
           {...linkExterno(b.link)}
@@ -116,6 +117,8 @@ export function Botoes({ botoes, editando }: { botoes?: Botao[]; editando?: bool
     </div>
   );
 }
+
+export { linkSeguro };
 
 export function linkExterno(link?: string) {
   return link && /^https?:\/\//.test(link) ? { target: "_blank", rel: "noopener noreferrer" } : {};

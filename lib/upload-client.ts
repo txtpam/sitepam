@@ -16,8 +16,8 @@ export function configurarUpload(opts: { modo: ModoUpload }) {
 async function preparar(arquivo: File): Promise<{ arquivo: Blob; nome: string; largura: number; altura: number }> {
   const base = arquivo.name.replace(/\.[^.]+$/, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "foto";
 
-  if (arquivo.type === "image/svg+xml" || arquivo.type === "image/gif") {
-    return { arquivo, nome: `${base}.${arquivo.type === "image/gif" ? "gif" : "svg"}`, largura: 0, altura: 0 };
+  if (arquivo.type === "image/gif") {
+    return { arquivo, nome: `${base}.gif`, largura: 0, altura: 0 };
   }
 
   const bitmap = await createImageBitmap(arquivo, { imageOrientation: "from-image" });
@@ -46,6 +46,7 @@ async function preparar(arquivo: File): Promise<{ arquivo: Blob; nome: string; l
 
 export async function enviarFoto(arquivo: File): Promise<Imagem> {
   if (!arquivo.type.startsWith("image/")) throw new Error(`"${arquivo.name}" não é uma imagem.`);
+  if (arquivo.type === "image/svg+xml") throw new Error(`"${arquivo.name}" é SVG. Envie a foto em JPG, PNG ou WEBP.`);
   const p = await preparar(arquivo);
 
   if (modo !== "local") {

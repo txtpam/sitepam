@@ -8,6 +8,7 @@ import {
   Secao,
   cx,
   linkExterno,
+  linkSeguro,
   proporcoes,
   type Botao,
   type Espacamento,
@@ -427,8 +428,8 @@ export const config: Config<Props, Root> = {
         return (
           <Secao id={ancora} fundo={fundo} espacamento={espacamento} largura={largura}>
             <figure className={cx("pb-foto", proporcao === "original" && "pb-foto--original")}>
-              {link && !puck.isEditing ? (
-                <a href={link} {...linkExterno(link)}>
+              {linkSeguro(link) && !puck.isEditing ? (
+                <a href={linkSeguro(link)} {...linkExterno(link)}>
                   {quadro}
                 </a>
               ) : (
@@ -667,7 +668,7 @@ export const config: Config<Props, Root> = {
           )}
           <div className="pb-portfolio" style={{ ["--colunas" as string]: colunas || 3 }}>
             {(itens || []).map((it, i) => (
-              <a key={i} className="pb-portfolio__item" href={!puck.isEditing && it.link ? it.link : undefined}>
+              <a key={i} className="pb-portfolio__item" href={!puck.isEditing ? linkSeguro(it.link) : undefined}>
                 <div className="pb-portfolio__capa">
                   <Foto imagem={it.capa} mensagemVazio="Capa do ensaio" sizes="(max-width: 900px) 50vw, 33vw" />
                 </div>
