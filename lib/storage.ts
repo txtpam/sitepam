@@ -75,7 +75,9 @@ export async function lerPagina(slug: string): Promise<Data | null> {
   if (usandoBlob()) {
     const [ultima] = await versoesBlob(slug);
     if (!ultima) return null;
-    const res = await fetch(ultima.url, { cache: "no-store" });
+    // Cada versão tem nome único e nunca muda: pode (e deve) ficar em cache.
+    // "no-store" aqui quebra as páginas em cache (erro DYNAMIC_SERVER_USAGE).
+    const res = await fetch(ultima.url, { cache: "force-cache" });
     if (!res.ok) return null;
     return (await res.json()) as Data;
   }
