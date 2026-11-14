@@ -1,121 +1,88 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Foto, cx, type ItemGaleria } from "./comum";
 
 export type PropsGaleriaMovimento = {
   fotos: ItemGaleria[];
   alturaFotos: number; // % da altura da tela
-  espaco?: number; // não usado: as fotos ficam sempre coladas
   velocidade: "rapida" | "normal" | "lenta";
   direcao: "esquerda" | "direita";
-  parallax?: boolean; // não usado: o efeito recortava as fotos
   mostrarLegendas: boolean;
+  espaco?: number; // não usado: as fotos ficam sempre coladas
+  parallax?: boolean; // não usado
 };
 
-const FATOR_VELOCIDADE = { rapida: 0.7, normal: 1, lenta: 1.5 };
+// pixels por segundo
+const VELOCIDADE = { lenta: 30, normal: 60, rapida: 110 };
 
 /**
- * Seção "presa" na tela enquanto a página rola; a rolagem vertical
- * move o trilho de fotos na horizontal.
+ * Faixa de fotos que desliza sozinha, em loop contínuo.
+ * Não prende a página nem depende da rolagem: o visitante navega normalmente.
+ * Para o loop não ter emenda, o conjunto de fotos é repetido o suficiente para
+ * cobrir a tela, e a faixa anda exatamente a largura de um conjunto.
  */
-export function GaleriaMovimento({
-  fotos,
-  alturaFotos,
-  velocidade,
-  direcao,
-  mostrarLegendas,
-  intro,
-  editando,
-}: PropsGaleriaMovimento & { intro?: ReactNode; editando?: boolean }) {
-  const secao = useRef<HTMLElement>(null);
-  const trilho = useRef<HTMLDivElement>(null);
-  const [alturaSecao, setAlturaSecao] = useState<number | null>(null);
-  const [estatico, setEstatico] = useState(true);
+export function GaleriaMovimento({ fotos, alturaFotos, velocidade, direcao, mostrarLegendas }: PropsGaleriaMovimento) {
+  const conjunto = useRef<HTMLDivElement>(null);
+  const [largura, setLargura] = useState(0);
+  const [copias, setCopias] = useState(2);
 
   const lista: ItemGaleria[] = fotos?.length ? fotos : Array.from({ length: 5 }, () => ({ src: "" }));
 
   useEffect(() => {
-    const el = secao.current;
-    const tr = trilho.current;
-    if (!el || !tr) return;
+    const el = conjunto.current;
+    if (!el) return;
     const win = el.ownerDocument.defaultView || window;
-    const reduzir = win.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // No editor (ou com "reduzir movimento" ativado) mostramos uma faixa simples.
-    if (editando || reduzir) {
-      setEstatico(true);
-      setAlturaSecao(null);
-      return;
-    }
-    setEstatico(false);
-
-    let distancia = 0;
-    let quadro = 0;
-
     const medir = () => {
-      const vw = win.innerWidth;
-      const vh = win.innerHeight;
-      distancia = Math.max(0, tr.scrollWidth - vw);
-      setAlturaSecao(Math.round(vh + distancia * FATOR_VELOCIDADE[velocidade]));
-      atualizar();
+      const w = el.getBoundingClientRect().width;
+      if (!w) return;
+      setLargura(w);
+      setCopias(Math.max(2, Math.ceil(win.innerWidth / w) + 1));
     };
-
-    const atualizar = () => {
-      quadro = 0;
-      const vh = win.innerHeight;
-      const r = el.getBoundingClientRect();
-      const total = el.offsetHeight - vh;
-      const p = total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0;
-      const x = direcao === "esquerda" ? -p * distancia : -(1 - p) * distancia;
-      tr.style.transform = `translate3d(${x.toFixed(1)}px, 0, 0)`;
-
-    };
-
-    const agendar = () => {
-      if (!quadro) quadro = win.requestAnimationFrame(atualizar);
-    };
-
     const obs = new ResizeObserver(medir);
-    obs.observe(tr);
-    win.addEventListener("scroll", agendar, { passive: true });
+    obs.observe(el);
     win.addEventListener("resize", medir);
     medir();
-
     return () => {
       obs.disconnect();
-      win.removeEventListener("scroll", agendar);
       win.removeEventListener("resize", medir);
-      if (quadro) win.cancelAnimationFrame(quadro);
     };
-  }, [editando, velocidade, direcao, lista.length]);
+  }, [lista.length]);
 
   const estilo = {
-    "--altura-fotos": `${alturaFotos || 70}vh`,
-    height: alturaSecao ? `${alturaSecao}px` : undefined,
+    "--altura-fotos": `${alturaFotos || 60}vh`,
+    "--desloc": `${largura}px`,
+    "--duracao": `${largura ? largura / (VELOCIDADE[velocidade] || VELOCIDADE.normal) : 0}s`,
   } as CSSProperties;
 
-  return (
-    <section ref={secao} className={cx("pb-movimento", estatico && "pb-movimento--estatico")} style={estilo}>
-      <div className="pb-movimento__palco">
-        <div ref={trilho} className="pb-movimento__trilho">
-          {intro && <div className="pb-movimento__intro">{intro}</div>}
-          {lista.map((f, i) => (
-            // o quadro assume o tamanho da própria foto: nada é recortado
-            <figure key={i} className="pb-movimento__item">
-              <div
-                className={cx("pb-movimento__quadro", Boolean(f.largura && f.altura) && "pb-movimento__quadro--medido")}
-                style={f.largura && f.altura ? ({ ["--ratio" as string]: f.largura / f.altura } as CSSProperties) : undefined}
-              >
-                <Foto imagem={f} mensagemVazio={i === 0 ? "Adicione fotos" : ""} sizes="(max-width: 720px) 90vw, 60vw" />
-              </div>
-              {mostrarLegendas && f.legenda && <figcaption className="pb-legenda">{f.legenda}</figcaption>}
-            </figure>
-          ))}
-        </div>
-        {editando && (
-          <p className="pb-movimento__aviso">Prévia — no site publicado, as fotos deslizam conforme a pessoa rola a página.</p>
-        )}
+  const itens = lista.map((f, i) => (
+    // o quadro assume o tamanho da própria foto: nada é recortado
+    <figure key={i} className="pb-movimento__item">
+      <div
+        className={cx("pb-movimento__quadro", Boolean(f.largura && f.altura) && "pb-movimento__quadro--medido")}
+        style={f.largura && f.altura ? ({ ["--ratio" as string]: f.largura / f.altura } as CSSProperties) : undefined}
+      >
+        <Foto imagem={f} mensagemVazio={i === 0 ? "Adicione fotos" : ""} sizes="(max-width: 720px) 90vw, 60vw" />
       </div>
-    </section>
+      {mostrarLegendas && f.legenda && <figcaption className="pb-legenda">{f.legenda}</figcaption>}
+    </figure>
+  ));
+
+  return (
+    <div className="pb-movimento" style={estilo} aria-roledescription="galeria em movimento">
+      <div
+        className={cx(
+          "pb-movimento__trilho",
+          largura > 0 && "pb-movimento__trilho--ativo",
+          direcao === "direita" && "pb-movimento__trilho--direita",
+        )}
+      >
+        {Array.from({ length: copias }).map((_, c) => (
+          <div key={c} ref={c === 0 ? conjunto : undefined} className="pb-movimento__conjunto" aria-hidden={c > 0 || undefined}>
+            {itens}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

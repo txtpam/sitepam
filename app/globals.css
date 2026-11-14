@@ -916,31 +916,41 @@ a {
 
 /* ------------------------------------------------- galeria em movimento */
 
+/* faixa que roda sozinha, em loop; a página rola normalmente */
 .pb-movimento {
-  position: relative;
-}
-.pb-movimento__palco {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  width: 100%;
 }
 .pb-movimento__trilho {
   display: flex;
-  align-items: center;
-  gap: 0; /* fotos sempre coladas */
-  padding: 0 var(--pb-gutter);
   width: max-content;
+}
+.pb-movimento__trilho--ativo {
+  animation: pb-desliza var(--duracao, 60s) linear infinite;
   will-change: transform;
 }
-.pb-movimento__intro {
+.pb-movimento__trilho--direita {
+  animation-direction: reverse;
+}
+/* no computador, parar ao passar o mouse para a pessoa ver a foto */
+@media (hover: hover) {
+  .pb-movimento:hover .pb-movimento__trilho--ativo {
+    animation-play-state: paused;
+  }
+}
+@keyframes pb-desliza {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(calc(-1 * var(--desloc, 0px)), 0, 0);
+  }
+}
+.pb-movimento__conjunto {
+  display: flex;
+  align-items: center;
   flex: none;
-  width: min(420px, 78vw);
-  padding-right: clamp(16px, 4vw, 48px);
+  gap: 0; /* fotos sempre coladas */
 }
 .pb-movimento__item {
   flex: none;
@@ -954,32 +964,33 @@ a {
   display: block;
   width: auto;
   height: auto;
-  max-height: min(var(--altura-fotos, 70vh), calc(100svh - 120px));
+  max-height: min(var(--altura-fotos, 60vh), calc(100svh - 120px));
   max-width: 85vw;
 }
-/* com as medidas conhecidas: altura exata calculada pela proporção (reserva o espaço antes de carregar) */
+/* com as medidas conhecidas: altura exata pela proporção (reserva o espaço antes de carregar) */
 .pb-movimento__quadro--medido > img {
-  height: min(var(--altura-fotos, 70vh), calc(100svh - 120px), calc(85vw / var(--ratio)));
+  height: min(var(--altura-fotos, 60vh), calc(100svh - 120px), calc(85vw / var(--ratio)));
   max-height: none;
   max-width: none;
 }
 .pb-movimento__quadro > .pb-vazio {
-  width: calc(min(var(--altura-fotos, 70vh), calc(100svh - 120px)) * 1.5);
+  width: calc(min(var(--altura-fotos, 60vh), calc(100svh - 120px)) * 1.5);
   max-width: 85vw;
-  height: min(var(--altura-fotos, 70vh), calc(100svh - 120px));
+  height: min(var(--altura-fotos, 60vh), calc(100svh - 120px));
   line-height: 1.4;
 }
-/* prévia no editor / quem prefere menos movimento: faixa com rolagem lateral */
-.pb-movimento--estatico .pb-movimento__palco {
-  position: relative;
-  height: auto;
-  padding: clamp(40px, 6vw, 80px) 0;
-  overflow-x: auto;
+.pb-movimento .pb-legenda {
+  line-height: 1.4;
+  padding: 0 12px;
 }
-.pb-movimento__aviso {
-  margin: 18px var(--pb-gutter) 0;
-  font-size: 13px;
-  opacity: 0.7;
+/* quem pede menos movimento no sistema: faixa parada, com rolagem lateral */
+@media (prefers-reduced-motion: reduce) {
+  .pb-movimento {
+    overflow-x: auto;
+  }
+  .pb-movimento__conjunto[aria-hidden] {
+    display: none;
+  }
 }
 
 /* ------------------------------------------------------------ lightbox */
