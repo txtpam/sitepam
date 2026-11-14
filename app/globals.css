@@ -947,22 +947,27 @@ a {
   margin: 0;
 }
 .pb-movimento__quadro {
-  /* altura escolhida, sem passar de 85% da largura da tela nem da altura disponível */
-  height: min(var(--altura-fotos, 70vh), calc(85vw / var(--ratio, 1.5)), calc(100svh - 120px));
-  overflow: hidden;
-  background: var(--pb-petroleo-claro);
+  line-height: 0;
 }
-.pb-movimento__quadro > img,
-.pb-movimento__quadro > .pb-vazio {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scale(1.18);
-  will-change: transform;
+/* a foto define o tamanho do quadro: altura escolhida, proporção original, sem recorte */
+.pb-movimento__quadro > img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-height: min(var(--altura-fotos, 70vh), calc(100svh - 120px));
+  max-width: 85vw;
+}
+/* com as medidas conhecidas: altura exata calculada pela proporção (reserva o espaço antes de carregar) */
+.pb-movimento__quadro--medido > img {
+  height: min(var(--altura-fotos, 70vh), calc(100svh - 120px), calc(85vw / var(--ratio)));
+  max-height: none;
+  max-width: none;
 }
 .pb-movimento__quadro > .pb-vazio {
-  transform: none;
-  min-width: 260px;
+  width: calc(min(var(--altura-fotos, 70vh), calc(100svh - 120px)) * 1.5);
+  max-width: 85vw;
+  height: min(var(--altura-fotos, 70vh), calc(100svh - 120px));
+  line-height: 1.4;
 }
 /* prévia no editor / quem prefere menos movimento: faixa com rolagem lateral */
 .pb-movimento--estatico .pb-movimento__palco {
@@ -970,9 +975,6 @@ a {
   height: auto;
   padding: clamp(40px, 6vw, 80px) 0;
   overflow-x: auto;
-}
-.pb-movimento--estatico .pb-movimento__quadro > img {
-  transform: none;
 }
 .pb-movimento__aviso {
   margin: 18px var(--pb-gutter) 0;

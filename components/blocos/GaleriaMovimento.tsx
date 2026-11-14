@@ -9,12 +9,11 @@ export type PropsGaleriaMovimento = {
   espaco?: number; // não usado: as fotos ficam sempre coladas
   velocidade: "rapida" | "normal" | "lenta";
   direcao: "esquerda" | "direita";
-  parallax: boolean;
+  parallax?: boolean; // não usado: o efeito recortava as fotos
   mostrarLegendas: boolean;
 };
 
 const FATOR_VELOCIDADE = { rapida: 0.7, normal: 1, lenta: 1.5 };
-const INTENSIDADE_PARALLAX = 0.12; // deslocamento da foto dentro da moldura
 
 /**
  * Seção "presa" na tela enquanto a página rola; a rolagem vertical
@@ -25,7 +24,6 @@ export function GaleriaMovimento({
   alturaFotos,
   velocidade,
   direcao,
-  parallax,
   mostrarLegendas,
   intro,
   editando,
@@ -53,7 +51,6 @@ export function GaleriaMovimento({
 
     let distancia = 0;
     let quadro = 0;
-    const molduras = () => Array.from(tr.querySelectorAll<HTMLElement>(".pb-movimento__quadro"));
 
     const medir = () => {
       const vw = win.innerWidth;
@@ -66,22 +63,12 @@ export function GaleriaMovimento({
     const atualizar = () => {
       quadro = 0;
       const vh = win.innerHeight;
-      const vw = win.innerWidth;
       const r = el.getBoundingClientRect();
       const total = el.offsetHeight - vh;
       const p = total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0;
       const x = direcao === "esquerda" ? -p * distancia : -(1 - p) * distancia;
       tr.style.transform = `translate3d(${x.toFixed(1)}px, 0, 0)`;
 
-      if (parallax) {
-        for (const m of molduras()) {
-          const mr = m.getBoundingClientRect();
-          if (mr.right < -200 || mr.left > vw + 200) continue;
-          const centro = (mr.left + mr.width / 2 - vw / 2) / vw; // -1 … 1
-          const img = m.firstElementChild as HTMLElement | null;
-          if (img) img.style.transform = `translate3d(${(-centro * INTENSIDADE_PARALLAX * mr.width).toFixed(1)}px, 0, 0) scale(1.18)`;
-        }
-      }
     };
 
     const agendar = () => {
@@ -100,7 +87,7 @@ export function GaleriaMovimento({
       win.removeEventListener("resize", medir);
       if (quadro) win.cancelAnimationFrame(quadro);
     };
-  }, [editando, velocidade, direcao, parallax, lista.length]);
+  }, [editando, velocidade, direcao, lista.length]);
 
   const estilo = {
     "--altura-fotos": `${alturaFotos || 70}vh`,
@@ -112,17 +99,18 @@ export function GaleriaMovimento({
       <div className="pb-movimento__palco">
         <div ref={trilho} className="pb-movimento__trilho">
           {intro && <div className="pb-movimento__intro">{intro}</div>}
-          {lista.map((f, i) => {
-            const ratio = f.largura && f.altura ? f.largura / f.altura : 1.5;
-            return (
-              <figure key={i} className="pb-movimento__item">
-                <div className="pb-movimento__quadro" style={{ aspectRatio: String(ratio), ["--ratio" as string]: ratio }}>
-                  <Foto imagem={f} mensagemVazio={i === 0 ? "Adicione fotos" : ""} sizes="(max-width: 720px) 90vw, 60vw" />
-                </div>
-                {mostrarLegendas && f.legenda && <figcaption className="pb-legenda">{f.legenda}</figcaption>}
-              </figure>
-            );
-          })}
+          {lista.map((f, i) => (
+            // o quadro assume o tamanho da própria foto: nada é recortado
+            <figure key={i} className="pb-movimento__item">
+              <div
+                className={cx("pb-movimento__quadro", Boolean(f.largura && f.altura) && "pb-movimento__quadro--medido")}
+                style={f.largura && f.altura ? ({ ["--ratio" as string]: f.largura / f.altura } as CSSProperties) : undefined}
+              >
+                <Foto imagem={f} mensagemVazio={i === 0 ? "Adicione fotos" : ""} sizes="(max-width: 720px) 90vw, 60vw" />
+              </div>
+              {mostrarLegendas && f.legenda && <figcaption className="pb-legenda">{f.legenda}</figcaption>}
+            </figure>
+          ))}
         </div>
         {editando && (
           <p className="pb-movimento__aviso">Prévia — no site publicado, as fotos deslizam conforme a pessoa rola a página.</p>
