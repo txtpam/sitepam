@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Puck, type Data } from "@puckeditor/core";
+import { createPortal } from "react-dom";
+import { Puck, useGetPuck, type Data } from "@puckeditor/core";
 import "@puckeditor/core/puck.css";
 import { config } from "@/puck.config";
 import { publicar } from "@/app/acoes";
@@ -10,6 +11,35 @@ import { configurarUpload } from "@/lib/upload-client";
 import { dicionarioPtBr } from "./dicionario";
 
 type Status = { tipo: "ok" | "erro" | "salvando" | "alterado"; texto: string } | null;
+
+/**
+ * Botão "Publicar" fixo no canto da tela (celular e tablet).
+ * No celular, o botão do topo some quando o painel de configurações está aberto;
+ * este fica sempre visível. Precisa estar dentro do <Puck> para ler o conteúdo atual.
+ */
+function PublicarFlutuante({ status, aoPublicar }: { status: Status; aoPublicar: (d: Data) => Promise<void> }) {
+  const getPuck = useGetPuck();
+  const [montado, setMontado] = useState(false);
+  useEffect(() => setMontado(true), []);
+  if (!montado) return null;
+  const salvando = status?.tipo === "salvando";
+  const texto = salvando ? "Publicando…" : status?.tipo === "ok" ? "Publicado" : "Publicar";
+  return createPortal(
+    <button
+      type="button"
+      className={`editor-publicar-flutuante${status?.tipo === "alterado" ? " editor-publicar-flutuante--pendente" : ""}`}
+      disabled={salvando}
+      aria-live="polite"
+      onClick={() => aoPublicar(getPuck().appState.data as Data)}
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+        <path d="M12 16V4M6 10l6-6 6 6M4 20h16" />
+      </svg>
+      {texto}
+    </button>,
+    document.body,
+  );
+}
 
 export function Editor({
   slug,
@@ -32,7 +62,7 @@ export function Editor({
   );
   const [status, setStatus] = useState<Status>(dataInicial ? null : { tipo: "alterado", texto: "Página ainda não publicada" });
   const alterado = useRef(!dataInicial);
-  const primeiraMudanca = useRef(true);
+  const ultimoPublicado = useRef<string | null>(dataInicial ? JSON.stringify(data) : null);
 
   useEffect(() => {
     const avisar = (e: BeforeUnloadEvent) => {
@@ -46,6 +76,7 @@ export function Editor({
     setStatus({ tipo: "salvando", texto: "Publicando…" });
     try {
       await publicar(slug, d);
+      ultimoPublicado.current = JSON.stringify(d);
       alterado.current = false;
       setStatus({ tipo: "ok", texto: `Publicado às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}` });
     } catch (e) {
@@ -62,12 +93,9 @@ export function Editor({
       config={config}
       data={data}
       onPublish={aoPublicar}
-      onChange={() => {
-        // o Puck dispara um onChange ao carregar; ignoramos o primeiro
-        if (primeiraMudanca.current) {
-          primeiraMudanca.current = false;
-          return;
-        }
+      onChange={(d) => {
+        // o Puck também avisa ao carregar; só marcamos se o conteúdo mudou de verdade
+        if (ultimoPublicado.current !== null && JSON.stringify(d) === ultimoPublicado.current) return;
         alterado.current = true;
         setStatus({ tipo: "alterado", texto: "Alterações não publicadas" });
       }}
@@ -80,6 +108,12 @@ export function Editor({
         { width: 1280, height: "auto", label: "Computador", icon: "Monitor" },
       ]}
       overrides={{
+        puck: ({ children }) => (
+          <>
+            {children}
+            <PublicarFlutuante status={status} aoPublicar={aoPublicar} />
+          </>
+        ),
         headerActions: ({ children }) => (
           <div className="editor-acoes">
             {status && <span className={`editor-status ${status.tipo === "erro" ? "editor-status--erro" : ""}`}>{status.texto}</span>}

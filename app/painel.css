@@ -236,3 +236,46 @@
 .editor-status--erro {
   color: #943923;
 }
+
+/* botão "Publicar" sempre visível no editor (celular e tablet) */
+.editor-publicar-flutuante {
+  display: none;
+}
+@media (max-width: 1024px) {
+  .editor-publicar-flutuante {
+    position: fixed;
+    right: 16px;
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    z-index: 2147483000;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 22px;
+    border: 0;
+    border-radius: 999px;
+    background: #1f4e5f;
+    color: #fff;
+    font: 600 16px/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+    box-shadow: 0 6px 20px rgba(20, 20, 20, 0.28);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .editor-publicar-flutuante:active {
+    transform: scale(0.97);
+  }
+  .editor-publicar-flutuante:disabled {
+    opacity: 0.75;
+  }
+  /* alterações ainda não publicadas: ponto terracota de aviso */
+  .editor-publicar-flutuante--pendente::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #b5452b;
+    border: 2px solid #fff;
+  }
+}
