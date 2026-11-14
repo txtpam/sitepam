@@ -1,14 +1,15 @@
 "use client";
 
-import { upload } from "@vercel/blob/client";
+import { upload, uploadPresigned } from "@vercel/blob/client";
 import type { Imagem } from "@/components/blocos/comum";
 
 const LADO_MAXIMO = 2400; // px — suficiente para telas grandes, leve para o site
 const QUALIDADE = 0.86;
 
-let usarBlob = false;
-export function configurarUpload(opts: { blob: boolean }) {
-  usarBlob = opts.blob;
+type ModoUpload = "token" | "presigned" | "local";
+let modo: ModoUpload = "local";
+export function configurarUpload(opts: { modo: ModoUpload }) {
+  modo = opts.modo;
 }
 
 /** Reduz a foto no navegador antes de enviar (fotos de câmera chegam a 20+ MB). */
@@ -47,8 +48,9 @@ export async function enviarFoto(arquivo: File): Promise<Imagem> {
   if (!arquivo.type.startsWith("image/")) throw new Error(`"${arquivo.name}" não é uma imagem.`);
   const p = await preparar(arquivo);
 
-  if (usarBlob) {
-    const r = await upload(`fotos/${p.nome}`, p.arquivo, {
+  if (modo !== "local") {
+    const enviar = modo === "presigned" ? uploadPresigned : upload;
+    const r = await enviar(`fotos/${p.nome}`, p.arquivo, {
       access: "public",
       handleUploadUrl: "/api/upload",
       contentType: p.arquivo.type || "image/jpeg",

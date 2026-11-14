@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { estaLogado } from "@/lib/auth";
-import { lerPagina, slugValido, usandoBlob } from "@/lib/storage";
+import { lerPagina, modoUpload, slugValido } from "@/lib/storage";
 import { Editor } from "@/components/editor/Editor";
 import "../../painel.css";
 
@@ -24,5 +24,5 @@ export default async function EditarPagina({
   if (!data && slug !== "" && !novo) notFound();
   const inicio = data || slug === "" ? null : await lerPagina("");
 
-  return <Editor slug={slug} dataInicial={data} tituloNovo={novo || null} inicio={inicio} uploadBlob={usandoBlob()} />;
+  return <Editor slug={slug} dataInicial={data} tituloNovo={novo || null} inicio={inicio} modoUpload={modoUpload()} />;
 }

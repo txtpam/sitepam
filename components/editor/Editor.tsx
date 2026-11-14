@@ -16,15 +16,15 @@ export function Editor({
   dataInicial,
   tituloNovo,
   inicio,
-  uploadBlob,
+  modoUpload,
 }: {
   slug: string;
   dataInicial: Data | null;
   tituloNovo: string | null;
   inicio: Data | null;
-  uploadBlob: boolean;
+  modoUpload: "token" | "presigned" | "local";
 }) {
-  configurarUpload({ blob: uploadBlob });
+  configurarUpload({ modo: modoUpload });
 
   const data = useMemo(
     () => dataInicial ?? (slug === "" ? modeloInicio() : modeloNovaPagina(tituloNovo || slug, inicio)),

@@ -16,7 +16,20 @@ import type { Data } from "@puckeditor/core";
 const MAX_VERSOES = 15;
 const LOCAL_DIR = path.join(process.cwd(), ".data");
 
-export const usandoBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+export const usandoBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+
+/**
+ * Como o navegador envia fotos ao Blob:
+ * - "token": conexão antiga da Vercel (BLOB_READ_WRITE_TOKEN)
+ * - "presigned": conexão nova da Vercel (BLOB_STORE_ID + OIDC automático)
+ * - "local": desenvolvimento, sem Blob
+ */
+export type ModoUpload = "token" | "presigned" | "local";
+export function modoUpload(): ModoUpload {
+  if (process.env.BLOB_READ_WRITE_TOKEN) return "token";
+  if (process.env.BLOB_STORE_ID) return "presigned";
+  return "local";
+}
 
 export type InfoPagina = {
   slug: string; // "" para a página inicial
