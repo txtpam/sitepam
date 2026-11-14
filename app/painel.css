@@ -1,0 +1,238 @@
+/* Telas do painel de edição (login e lista de páginas) */
+
+.painel {
+  min-height: 100vh;
+  background: var(--pb-off-white);
+  color: var(--pb-preto);
+  font-family: var(--pb-fonte);
+  padding: 32px 16px 64px;
+}
+.painel--centro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.painel__topo {
+  max-width: 880px;
+  margin: 0 auto 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.painel__topo img {
+  height: 44px;
+  width: auto;
+}
+.painel__conteudo {
+  max-width: 880px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+.painel__cartao {
+  background: var(--pb-branco);
+  border-radius: 14px;
+  padding: clamp(20px, 4vw, 36px);
+  box-shadow: 0 1px 2px rgba(20, 20, 20, 0.06), 0 8px 24px rgba(20, 20, 20, 0.05);
+}
+.painel__cartao--login {
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+.painel__logo-vertical {
+  margin: 0 auto 8px;
+  width: 130px;
+  height: auto;
+}
+.painel__titulo {
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin: 0 0 20px;
+}
+.painel__subtitulo {
+  font-size: 15px;
+  color: var(--pb-cinza-60);
+  margin: -12px 0 20px;
+  font-weight: 300;
+}
+.painel__form {
+  display: grid;
+  gap: 14px;
+  text-align: left;
+}
+.painel__form--linha {
+  grid-template-columns: 1fr 1fr auto;
+  align-items: end;
+}
+@media (max-width: 640px) {
+  .painel__form--linha {
+    grid-template-columns: 1fr;
+  }
+}
+.painel__label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.painel__input {
+  font: inherit;
+  font-weight: 400;
+  font-size: 16px;
+  padding: 11px 13px;
+  border: 1px solid var(--pb-cinza-20);
+  border-radius: 8px;
+  background: var(--pb-branco);
+  width: 100%;
+}
+.painel__input:focus {
+  outline: 2px solid var(--pb-petroleo);
+  outline-offset: 1px;
+}
+.painel__prefixo {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--pb-cinza-20);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.painel__prefixo span {
+  padding: 0 4px 0 12px;
+  color: var(--pb-cinza-60);
+  font-weight: 400;
+}
+.painel__prefixo .painel__input {
+  border: 0;
+  padding-left: 0;
+}
+.painel__botao {
+  font: inherit;
+  font-weight: 500;
+  font-size: 15px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--pb-petroleo);
+  color: var(--pb-branco);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+.painel__botao:hover {
+  background: var(--pb-petroleo-90);
+}
+.painel__botao:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.painel__botao--claro {
+  background: transparent;
+  color: var(--pb-preto);
+  border: 1px solid var(--pb-cinza-20);
+}
+.painel__botao--claro:hover {
+  background: var(--pb-off-white);
+}
+.painel__botao--perigo {
+  background: transparent;
+  color: var(--pb-terracota-90);
+  border: 1px solid var(--pb-terracota-claro);
+}
+.painel__botao--perigo:hover {
+  background: var(--pb-terracota-claro);
+}
+.painel__erro {
+  color: var(--pb-terracota-90);
+  font-size: 14px;
+  margin: 0;
+}
+.painel__aviso {
+  background: var(--pb-terracota-claro);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 14px;
+  text-align: left;
+  margin: 0;
+}
+.painel__aviso--info {
+  background: var(--pb-petroleo-claro);
+}
+.painel__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.painel__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--pb-cinza-20);
+  flex-wrap: wrap;
+}
+.painel__item:first-child {
+  border-top: 0;
+}
+.painel__item-nome {
+  font-size: 17px;
+  font-weight: 500;
+}
+.painel__item-info {
+  font-size: 13px;
+  color: var(--pb-cinza-60);
+}
+.painel__acoes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.painel__acoes .painel__botao {
+  padding: 9px 16px;
+  font-size: 14px;
+}
+.painel__dicas {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 15px;
+  font-weight: 300;
+  display: grid;
+  gap: 8px;
+}
+.painel__dicas strong {
+  font-weight: 500;
+}
+
+/* barra do editor */
+.editor-acoes {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.editor-acoes a {
+  font-size: 13px;
+  text-decoration: none;
+  color: #1f4e5f;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.editor-acoes a:hover {
+  background: #eef3f5;
+}
+.editor-status {
+  font-size: 12px;
+  color: #556;
+  white-space: nowrap;
+}
+.editor-status--erro {
+  color: #943923;
+}
